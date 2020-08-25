@@ -1,6 +1,8 @@
 package com.londonappbrewery.quizzler;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,16 +11,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-
-
-    private Button mTrueButton;
-    private Button mFalseButton;
-    private TextView mQuestionTextView;
-    private TextView mScoreTextView;
-    private ProgressBar mProgressBar;
-    private int mIndex = 0;
-    private Question mQuestion;
-    private int mScore = 0;
 
     private Question[] mQuestionBank = new Question[]{
             new Question(R.string.question_1, true),
@@ -36,7 +28,17 @@ public class MainActivity extends Activity {
             new Question(R.string.question_13, true)
     };
 
-    final int PROGRESS_BAR_INCREMENT = (int) Math.ceil(100.0 / mQuestionBank.length);
+    final int NUMBER_OF_QUESTIONS = mQuestionBank.length;
+    final int PROGRESS_BAR_INCREMENT = (int) Math.ceil(100.0 / NUMBER_OF_QUESTIONS);
+
+    private Button mTrueButton;
+    private Button mFalseButton;
+    private TextView mQuestionTextView;
+    private TextView mScoreTextView;
+    private ProgressBar mProgressBar;
+    private int mIndex = 0;
+    private Question mQuestion;
+    private int mScore = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +56,13 @@ public class MainActivity extends Activity {
 
     public void trueButtonPressed(View view) {
         checkAnswer(true);
+        updateProgress();
         updateQuestion();
     }
 
     public void falseButtonPressed(View view) {
         checkAnswer(false);
+        updateProgress();
         updateQuestion();
     }
 
@@ -74,12 +78,28 @@ public class MainActivity extends Activity {
 
     private void updateQuestion() {
         mIndex = mIndex + 1;
-        // We could also put mIndex = (mIndex + 1) % mQuestionBank.length, instead of the if statement, in order to loop the questions
-        if (mIndex <= mQuestionBank.length - 1) {
+        // We could also put mIndex = (mIndex + 1) % NUMBER_OF_QUESTIONS, instead of the if statement, in order to loop the questions
+        if (mIndex <= NUMBER_OF_QUESTIONS - 1) {
             mQuestion = mQuestionBank[mIndex];
             mQuestionTextView.setText(mQuestion.getQuestionId());
-            mProgressBar.incrementProgressBy(PROGRESS_BAR_INCREMENT);
-            mScoreTextView.setText("Score " + mScore + "/" + mQuestionBank.length);
+        } else {
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("End of game");
+            alert.setMessage("You have scored " + mScore + " points!");
+            alert.setCancelable(false);
+            alert.setPositiveButton("Close application", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    finish();
+                }
+            });
+
+            alert.show();
         }
+    }
+
+    private void updateProgress() {
+        mProgressBar.incrementProgressBy(PROGRESS_BAR_INCREMENT);
+        mScoreTextView.setText("Score " + mScore + "/" + NUMBER_OF_QUESTIONS);
     }
 }
