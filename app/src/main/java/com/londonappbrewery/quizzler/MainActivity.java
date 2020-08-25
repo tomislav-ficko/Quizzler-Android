@@ -83,23 +83,27 @@ public class MainActivity extends Activity {
             mQuestion = mQuestionBank[mIndex];
             mQuestionTextView.setText(mQuestion.getQuestionId());
         } else {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle("End of game");
-            alert.setMessage("You have scored " + mScore + " points!");
-            alert.setCancelable(false);
-            alert.setPositiveButton("Close application", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    finish();
-                }
-            });
-
-            alert.show();
+            showDialogAndExit();
         }
     }
 
     private void updateProgress() {
         mProgressBar.incrementProgressBy(PROGRESS_BAR_INCREMENT);
         mScoreTextView.setText("Score " + mScore + "/" + NUMBER_OF_QUESTIONS);
+    }
+
+    private void showDialogAndExit() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("End of game");
+        alert.setMessage("You have scored " + mScore + " points!");
+        alert.setCancelable(false);
+        alert.setPositiveButton("Close application", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+
+        alert.show();
     }
 }
