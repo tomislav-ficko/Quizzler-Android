@@ -9,14 +9,10 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-    // TODO: Declare constants here
-
-
-    // TODO: Declare member variables here:
     private Button mTrueButton;
     private Button mFalseButton;
     private TextView mQuestionTextView;
-    private int mIndex;
+    private int mIndex = 0;
     private Question mQuestion;
     private int score = 0;
 
@@ -60,17 +56,20 @@ public class MainActivity extends Activity {
 
     private void checkAnswer(boolean enteredAnswer) {
         if (enteredAnswer == mQuestion.isAnswer()) {
-            Toast.makeText(getApplicationContext(), "Correct answer!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.correct_toast, Toast.LENGTH_SHORT).show();
             score++;
         } else {
-            Toast.makeText(getApplicationContext(), "The answer was not correct!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.incorrect_toast, Toast.LENGTH_SHORT).show();
         }
     }
 
 
     private void updateQuestion() {
         mIndex = mIndex + 1;
-        mQuestion = mQuestionBank[mIndex];
-        mQuestionTextView.setText(mQuestion.getQuestionId());
+        // We could also put mIndex = (mIndex + 1) % mQuestionBank.length, instead of the if statement, in order to loop the questions
+        if (mIndex <= mQuestionBank.length - 1) {
+            mQuestion = mQuestionBank[mIndex];
+            mQuestionTextView.setText(mQuestion.getQuestionId());
+        }
     }
 }
