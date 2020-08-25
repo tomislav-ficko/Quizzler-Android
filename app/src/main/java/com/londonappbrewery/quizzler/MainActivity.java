@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,29 +34,47 @@ public class MainActivity extends Activity {
     private TextView mScoreTextView;
     private ProgressBar mProgressBar;
     private Question mQuestion;
+    private AlertDialog mAlertDialog;
     private int mIndex;
     private int mScore;
+    private boolean mGameEnded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState.isEmpty()) {
-            mIndex = 0;
-            mScore = 0;
-        } else {
-            mIndex = savedInstanceState.getInt("Index");
-            mScore = savedInstanceState.getInt("Score");
-        }
-
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
         mScoreTextView = (TextView) findViewById(R.id.score);
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
+        if (savedInstanceState == null) {
+            mIndex = 0;
+            mScore = 0;
+            mGameEnded = false;
+            updateMemberVariables();
+        } else {
+            restoreInstanceState(savedInstanceState);
+        }
+
+        if (mGameEnded) {
+            // This is executed if the device is rotated while the exit dialog box is shown
+            showDialogAndExit();
+        } else {
+            updateMemberVariables();
+        }
+    }
+
+    private void updateMemberVariables() {
         mQuestion = mQuestionBank[mIndex];
         mQuestionTextView.setText(mQuestion.getQuestionId());
+    }
 
+    private void restoreInstanceState(Bundle savedInstanceState) {
+        mIndex = savedInstanceState.getInt("Index");
+        mScore = savedInstanceState.getInt("Score");
+        mGameEnded = savedInstanceState.getBoolean("GameEnded");
+        mScoreTextView.setText("Score " + mScore + "/" + NUMBER_OF_QUESTIONS);
     }
 
     public void trueButtonPressed(View view) {
@@ -86,9 +103,9 @@ public class MainActivity extends Activity {
         mIndex++;
         // We could also put mIndex = (mIndex + 1) % NUMBER_OF_QUESTIONS, instead of the if statement, in order to loop the questions
         if (mIndex <= NUMBER_OF_QUESTIONS - 1) {
-            mQuestion = mQuestionBank[mIndex];
-            mQuestionTextView.setText(mQuestion.getQuestionId());
+            updateMemberVariables();
         } else {
+            mGameEnded = true;
             showDialogAndExit();
         }
     }
@@ -99,25 +116,31 @@ public class MainActivity extends Activity {
     }
 
     private void showDialogAndExit() {
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("End of game");
-        alert.setMessage("You have scored " + mScore + " points!");
-        alert.setCancelable(false);
-        alert.setPositiveButton("Close application", new DialogInterface.OnClickListener() {
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+        alertBuilder.setTitle("End of game");
+        alertBuilder.setMessage("You have scored " + mScore + " points!");
+        alertBuilder.setCancelable(false);
+        alertBuilder.setPositiveButton("Close application", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 finish();
             }
         });
+        mAlertDialog = alertBuilder.create();
 
-        alert.show();
+        mAlertDialog.show();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        if (mAlertDialog != null) {
+            mAlertDialog.dismiss();
+        }
+
         outState.putInt("Index", mIndex);
         outState.putInt("Score", mScore);
+        outState.putBoolean("GameEnded", mGameEnded);
     }
 }
