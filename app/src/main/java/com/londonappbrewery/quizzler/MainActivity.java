@@ -31,19 +31,25 @@ public class MainActivity extends Activity {
     final int NUMBER_OF_QUESTIONS = mQuestionBank.length;
     final int PROGRESS_BAR_INCREMENT = (int) Math.ceil(100.0 / NUMBER_OF_QUESTIONS);
 
-    private Button mTrueButton;
-    private Button mFalseButton;
     private TextView mQuestionTextView;
     private TextView mScoreTextView;
     private ProgressBar mProgressBar;
-    private int mIndex = 0;
     private Question mQuestion;
-    private int mScore = 0;
+    private int mIndex;
+    private int mScore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState.isEmpty()) {
+            mIndex = 0;
+            mScore = 0;
+        } else {
+            mIndex = savedInstanceState.getInt("Index");
+            mScore = savedInstanceState.getInt("Score");
+        }
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
         mScoreTextView = (TextView) findViewById(R.id.score);
@@ -77,7 +83,7 @@ public class MainActivity extends Activity {
 
 
     private void updateQuestion() {
-        mIndex = mIndex + 1;
+        mIndex++;
         // We could also put mIndex = (mIndex + 1) % NUMBER_OF_QUESTIONS, instead of the if statement, in order to loop the questions
         if (mIndex <= NUMBER_OF_QUESTIONS - 1) {
             mQuestion = mQuestionBank[mIndex];
@@ -105,5 +111,13 @@ public class MainActivity extends Activity {
         });
 
         alert.show();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("Index", mIndex);
+        outState.putInt("Score", mScore);
     }
 }
